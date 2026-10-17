@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AIR NEETwork — Personalized 1-on-1 NEET Mentoring by Top Rankers</title>
+    <meta name="description" content="Personalized 1-on-1 mentorship for NEET UG aspirants by top All India Rankers." />
+    <meta property="og:title" content="AIR NEETwork — Personalized 1-on-1 NEET Mentoring by Top Rankers" />
+    <meta property="og:description" content="Personalized 1-on-1 mentorship for NEET UG aspirants by top All India Rankers." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,600;1,700;1,800&family=Caveat:wght@500;600;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-HFY9WIN2.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-B80C4k8d.css?motion=29">
+  </head>
+  <body class="antialiased">
+    <div id="root"></div>
+  <script>
+(() => {
+  const readSession = (key, fallback) => { try { const value = sessionStorage.getItem(key); return value ? JSON.parse(value) : fallback; } catch { return fallback; } };
+  const writeSession = (key, value) => { try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {} };
+  const attemptCounts = readSession('airneet-discount-attempts', {});
+  const unlockedTiers = new Set(readSession('airneet-unlocked-tiers', []));
+  const discountQuestions = [
+    {subject:'Biology',year:'NEET 2022 · Cell Cycle and Cell Division',question:'Which event does not take place during mitosis?',options:['Chromosome condensation','Spindle attachment to kinetochores','Homologous chromosome pairing','Centrioles moving to opposite poles'],answer:2,explanation:'Homologous chromosomes pair during prophase I of meiosis, not mitosis.'},
+    {subject:'Biology',year:'NEET 2022 · Plant Growth and Development',question:'Which plant hormone promotes female flowers in cucumber?',options:['Cytokinin','Abscisic acid','Gibberellin','Ethylene'],answer:3,explanation:'Ethylene promotes female flower formation in cucurbits such as cucumber.'},
+    {subject:'Biology',year:'NEET 2022 · Microbes in Human Welfare',question:'Which organism forms nitrogen-fixing root nodules on Alnus?',options:['Beijerinckia','Rhizobium','Frankia','Rhodospirillum'],answer:2,explanation:'Frankia forms nitrogen-fixing nodules on the roots of Alnus.'},
+    {subject:'Biology',year:'NEET 2023 Manipur · Molecular Basis of Inheritance',question:'Who used ³²P- and ³⁵S-labelled phages to show that DNA is genetic material?',options:['Watson and Crick','Hershey and Chase','Griffith','Avery, MacLeod and McCarty'],answer:1,explanation:'Hershey and Chase used radioactive phosphorus and sulfur to distinguish DNA from protein in bacteriophages.'},
+    {subject:'Physics',year:'NEET Practice · Electrostatics',question:'A parallel-plate capacitor is charged and then disconnected from the battery. A dielectric of constant K is inserted fully between its plates. What happens to its electrostatic energy?',options:['It becomes K times larger','It becomes 1/K of its initial value','It remains unchanged','It becomes K² times larger'],answer:1,explanation:'With the battery disconnected, charge stays constant. Inserting the dielectric increases capacitance to KC, so U = Q²/(2C) falls to 1/K of its initial value.'},
+    {subject:'Physics',year:'NEET Practice · Current Electricity',question:'A 2 Ω resistor and a 4 Ω resistor are connected in parallel across a 12 V battery. What is the current through the 4 Ω resistor?',options:['1.5 A','2 A','3 A','6 A'],answer:2,explanation:'Parallel branches have the same potential difference. The current through the 4 Ω resistor is I = V/R = 12/4 = 3 A.'},
+    {subject:'Physics',year:'NEET Practice · Dual Nature of Matter',question:'An electron is accelerated from rest through a potential difference V. If the potential difference is increased to 4V, how does its de Broglie wavelength change?',options:['It doubles','It becomes half','It becomes four times','It stays the same'],answer:1,explanation:'For a non-relativistic particle accelerated through V, λ is proportional to 1/√V. Quadrupling V halves the wavelength.'},
+    {subject:'Chemistry',year:'NEET Practice · Equilibrium',question:'What is the pH of a 1.0 × 10⁻³ mol L⁻¹ HCl solution at 25 °C?',options:['1','2','3','11'],answer:2,explanation:'HCl is a strong acid, so [H⁺] = 1.0 × 10⁻³ mol L⁻¹ and pH = −log[H⁺] = 3.'},
+    {subject:'Chemistry',year:'NEET Practice · Chemical Bonding',question:'What is the hybridisation of sulphur in SF₆?',options:['sp³','sp³d','sp³d²','dsp²'],answer:2,explanation:'Sulphur forms six equivalent bonds in octahedral SF₆; in the conventional hybridisation model this is sp³d².'},
+    {subject:'Chemistry',year:'NEET Practice · Organic Chemistry',question:'What is the IUPAC name of CH₃CH₂OH?',options:['Methanol','Ethanol','Propanol','Ethanal'],answer:1,explanation:'The molecule has a two-carbon chain and a hydroxyl group, so its IUPAC name is ethanol.'}
+  ];
+  const questionSubjects = ['Physics','Chemistry','Biology'];
+  const showDiscountDialog = (plan) => {
+    document.querySelector('.home-tier-dialog-backdrop')?.remove();
+    let questionSubject = 'Biology', questionIndex = -1, selected = null, checked = false, attempts = attemptCounts[plan.name] || 0;
+    const chooseQuestion = (subject, excludeIndex = questionIndex) => { const pool = discountQuestions.map((q,index) => ({q,index})).filter(({q,index}) => q.subject === subject && index !== excludeIndex); const fallback = discountQuestions.map((q,index) => ({q,index})).filter(({q}) => q.subject === subject); const candidates = pool.length ? pool : fallback; if (candidates.length) questionIndex = candidates[Math.floor(Math.random() * candidates.length)].index; selected = null; checked = false; };
+    chooseQuestion(questionSubject, -1);
+    const backdrop = document.createElement('div'); backdrop.className = 'home-tier-dialog-backdrop';
+    const dialog = document.createElement('section'); dialog.className = 'home-tier-dialog home-discount-dialog home-tier-card--' + plan.kind; dialog.setAttribute('role','dialog'); dialog.setAttribute('aria-modal','true');
+    const close = document.createElement('button'); close.className = 'home-tier-dialog__close'; close.type = 'button'; close.setAttribute('aria-label','Close discount question'); close.textContent = '×'; close.addEventListener('click', () => backdrop.remove());
+    const render = () => {
+      dialog.replaceChildren(close);
+      const question = discountQuestions[questionIndex];
+      const eyebrow = document.createElement('div'); eyebrow.className = 'home-tier-dialog__eyebrow'; eyebrow.textContent = 'NEET PYQ · ' + plan.name.toUpperCase() + ' OFFER';
+      const title = document.createElement('h2'); title.className = 'home-discount-dialog__offer-title'; title.textContent = unlockedTiers.has(plan.name) ? 'Your discount is unlocked' : 'Solve a question and get it for';
+      const offer = document.createElement('div'); offer.className = 'home-discount-dialog__offer'; offer.textContent = '₹' + plan.discountPrice;
+      const hint = document.createElement('p'); hint.className = 'home-discount-dialog__hint'; hint.textContent = attempts === 0 ? '3 chances to answer correctly' : (3 - attempts) + (3 - attempts === 1 ? ' chance' : ' chances') + ' left';
+      dialog.append(eyebrow,title,offer);
+      if (unlockedTiers.has(plan.name)) {
+        const compare = document.createElement('div'); compare.className = 'home-discount-dialog__success-price'; compare.setAttribute('aria-label','Regular price ₹' + plan.price + ', discounted price ₹' + plan.discountPrice);
+        const original = document.createElement('span'); original.className = 'home-tier-card__original-price'; original.textContent = '₹' + plan.price;
+        const discounted = document.createElement('strong'); discounted.className = 'home-tier-card__discounted-price'; discounted.textContent = '₹' + plan.discountPrice;
+        compare.append(original,discounted); dialog.append(compare);
+      } else {
+      hint.textContent = attempts === 0 ? '3 chances to answer correctly' : (3 - attempts) + (3 - attempts === 1 ? ' chance' : ' chances') + ' left';
+      const subjectTabs = document.createElement('div'); subjectTabs.className = 'home-discount-dialog__subjects'; subjectTabs.setAttribute('role','tablist'); subjectTabs.setAttribute('aria-label','Choose a question subject');
+      questionSubjects.forEach(subject => { const tab = document.createElement('button'); tab.type = 'button'; tab.setAttribute('role','tab'); tab.setAttribute('aria-selected',String(questionSubject === subject)); tab.className = questionSubject === subject ? 'is-active' : ''; tab.textContent = subject; tab.addEventListener('click',() => { questionSubject = subject; chooseQuestion(subject); render(); }); subjectTabs.append(tab); });
+      const year = document.createElement('p'); year.className = 'home-discount-dialog__year'; year.textContent = question.year;
+      const prompt = document.createElement('p'); prompt.className = 'home-discount-dialog__question'; prompt.textContent = question.question;
+      const options = document.createElement('div'); options.className = 'home-discount-dialog__options'; options.setAttribute('role','group'); options.setAttribute('aria-label','Answer options');
+      question.options.forEach((text,index) => { const option = document.createElement('button'); option.type = 'button'; option.disabled = attempts >= 3; option.setAttribute('aria-pressed',String(selected === index)); if (selected === index) option.classList.add('is-selected'); const letter = document.createElement('span'); letter.textContent = String.fromCharCode(65 + index); option.append(letter,document.createTextNode(text)); option.addEventListener('click',() => { if (!checked && attempts < 3) { selected = index; render(); } }); options.append(option); });
+      dialog.append(hint,subjectTabs,year,prompt,options);
+      if (checked && selected !== question.answer) { const feedback = document.createElement('div'); feedback.className = 'home-discount-dialog__feedback is-incorrect'; feedback.setAttribute('role','status'); const left = 3 - attempts; const bold = document.createElement('strong'); bold.textContent = 'Not quite' + (left > 0 ? ' — ' + left + (left === 1 ? ' chance' : ' chances') + ' left.' : ' — no chances left.'); const explanation = document.createElement('span'); explanation.textContent = question.explanation; feedback.append(bold,explanation); dialog.append(feedback); }
+      }
+      const actions = document.createElement('div'); actions.className = 'home-discount-dialog__actions';
+      if (unlockedTiers.has(plan.name)) { const use = document.createElement('button'); use.className = 'home-tier-dialog__book'; use.textContent = 'Use ₹' + plan.discountPrice + ' price'; use.addEventListener('click',() => backdrop.remove()); actions.append(use); }
+      else if (attempts >= 3) { const closeOut = document.createElement('button'); closeOut.className = 'home-tier-dialog__book'; closeOut.textContent = 'Close'; closeOut.addEventListener('click',() => backdrop.remove()); actions.append(closeOut); }
+      else if (!checked) { const check = document.createElement('button'); check.className = 'home-tier-dialog__book'; check.textContent = 'Check answer'; check.disabled = selected === null; check.addEventListener('click',() => { attempts += 1; attemptCounts[plan.name] = attempts; writeSession('airneet-discount-attempts',attemptCounts); checked = true; if (selected === question.answer) { unlockedTiers.add(plan.name); writeSession('airneet-unlocked-tiers',Array.from(unlockedTiers)); } render(); }); actions.append(check); }
+      else { const retry = document.createElement('button'); retry.className = 'home-tier-dialog__book'; retry.textContent = 'Try again'; retry.addEventListener('click',() => { chooseQuestion(questionSubject); render(); }); actions.append(retry); }
+      dialog.append(actions);
+    };
+    render(); backdrop.append(dialog); backdrop.addEventListener('mousedown',event => { if (event.target === backdrop) backdrop.remove(); }); document.body.append(backdrop); close.focus();
+  };
+  const showTierDialog = (plan) => {
+    document.querySelector('.home-tier-dialog-backdrop')?.remove();
+    const backdrop = document.createElement('div'); backdrop.className = 'home-tier-dialog-backdrop';
+    const dialog = document.createElement('section'); dialog.className = 'home-tier-dialog home-tier-card--' + plan.kind; dialog.setAttribute('role','dialog'); dialog.setAttribute('aria-modal','true');
+    const close = document.createElement('button'); close.className = 'home-tier-dialog__close'; close.type = 'button'; close.setAttribute('aria-label','Close tier details'); close.textContent = '×'; close.addEventListener('click', () => backdrop.remove());
+    const eyebrow = document.createElement('div'); eyebrow.className = 'home-tier-dialog__eyebrow'; eyebrow.textContent = 'MENTORSHIP TIER';
+    const title = document.createElement('h2'); title.textContent = plan.name;
+    const description = document.createElement('p'); description.className = 'home-tier-dialog__description'; description.textContent = plan.description;
+    dialog.append(close, eyebrow, title, description);
+    if (plan.note) { const stat = document.createElement('p'); stat.className = 'home-tier-dialog__stat'; stat.textContent = plan.note + ' '; const value = document.createElement('strong'); value.textContent = plan.stat; stat.append(value); dialog.append(stat); }
+    const price = document.createElement('div'); price.className = 'home-tier-card__price-bar'; price.innerHTML = '<strong><small>₹</small>' + plan.price + '</strong>'; dialog.append(price);
+    const actions = document.createElement('div'); actions.className = 'home-tier-dialog__actions';
+    const book = document.createElement('button'); book.className = 'home-tier-dialog__book'; book.textContent = 'Book a session'; book.addEventListener('click', () => { backdrop.remove(); document.querySelector('button[title="Open contact & callback options"]')?.click(); });
+    const mentors = document.createElement('button'); mentors.className = 'home-tier-dialog__mentors'; mentors.textContent = 'Know the mentors ↗';
+    mentors.addEventListener('click', () => { dialog.replaceChildren(close); const heading = document.createElement('h2'); heading.textContent = 'Meet the mentors'; dialog.append(heading); [['Aryan Sharma','AIR 48 · AIIMS New Delhi'],['Sneha Patel','AIR 112 · VMMC'],['Rohan Verma','AIR 184 · MAMC']].forEach(([name, detail]) => { const row = document.createElement('div'); row.className = 'home-tier-dialog__mentor-row'; const n = document.createElement('strong'); n.textContent = name; const d = document.createElement('span'); d.textContent = detail; row.append(n, d); dialog.append(row); }); });
+    actions.append(book, mentors); dialog.append(actions); backdrop.append(dialog); backdrop.addEventListener('mousedown', (event) => { if (event.target === backdrop) backdrop.remove(); }); document.body.append(backdrop); close.focus();
+  };
+  const enhance = () => {
+    const heroCopy = document.querySelector('.home-intro__copy');
+    if (heroCopy && heroCopy.dataset.previewStats !== 'true') {
+      const eyebrow = heroCopy.querySelector('.home-eyebrow');
+      if (eyebrow) {
+        heroCopy.replaceChildren();
+        const aspirants = document.createElement('div'); aspirants.className = 'home-intro__aspirants'; aspirants.innerHTML = '<span><strong>22.79</strong> <span class="home-intro__unit">Lakh Aspirants</span></span>';
+        const stats = document.createElement('div'); stats.className = 'home-intro__stats home-intro__stats--editorial'; stats.setAttribute('aria-label','NEET UG and MBBS seat figures');
+        [['1.4','lakh','MBBS seats across India'],['63','thousand','MBBS seats in government colleges','0.027'],['2,257','AIIMS seats','','0.00099']].forEach(([value,unit,label,ratio]) => { const item = document.createElement('div'); item.className = 'home-intro__stat'; const copy = document.createElement('div'); copy.className = 'home-intro__stat-copy'; const valueLine = document.createElement('div'); valueLine.className = 'home-intro__stat-value'; const number = document.createElement('strong'); number.textContent = value; const unitText = document.createElement('span'); unitText.textContent = unit; valueLine.append(number,unitText); copy.append(valueLine); if (label) { const detail = document.createElement('span'); detail.textContent = label; copy.append(detail); } item.append(copy); if (ratio) { const callout = document.createElement('span'); callout.className = 'home-intro__ratio'; const figure = document.createElement('strong'); figure.textContent = ratio; const caption = document.createElement('span'); caption.textContent = 'selection ratio'; callout.append(figure,caption); item.append(callout); } stats.append(item); });
+        const heading = document.createElement('h1'); heading.id = 'home-title'; heading.className = 'home-intro__title home-intro__title--tagline'; const firstLine = document.createElement('span'); firstLine.textContent = 'The NEET race'; const secondLine = document.createElement('span'); secondLine.textContent = 'is real.'; heading.append(firstLine,secondLine);
+        const ask = document.createElement('p'); ask.className = 'home-intro__identity home-intro__identity--ask'; ask.textContent = 'Consult those who cleared';
+        const actions = document.createElement('div'); actions.className = 'home-intro__actions';
+        const book = document.createElement('button'); book.type = 'button'; book.className = 'home-intro__action'; book.innerHTML = 'Book 1:1 session with a ranker <span aria-hidden="true">↗</span>'; book.addEventListener('click', () => document.querySelector('button[title="Open contact & callback options"]')?.click());
+        const assess = document.createElement('a'); assess.className = 'home-intro__action home-intro__action--primary home-intro__action--assessment'; assess.href = '#diagnostic'; assess.innerHTML = 'Take assessment <span aria-hidden="true">↗</span>';
+        actions.append(book,assess);
+        const disclaimer = document.createElement('p'); disclaimer.className = 'home-intro__disclaimer'; disclaimer.textContent = 'Approximate 2026 figures. Ratios compare seat counts with registered aspirants, not individual admission odds; seat counts may change during counselling.';
+        const links = document.createElement('div'); links.className = 'home-intro__links'; links.innerHTML = '<a href="#services-title">Explore our Services <span aria-hidden="true">↗</span></a><span aria-hidden="true">|</span><a href="#pricing-title">Convince parents to pay <span aria-hidden="true">↗</span></a>';
+        heroCopy.append(aspirants,stats,heading,ask,actions,disclaimer,links); heroCopy.dataset.previewStats = 'true';
+      }
+    }
+    const homeServicesForSession = document.querySelector('.home-services');
+    if (homeServicesForSession && !document.querySelector('.session-followthrough')) {
+      {
+        const followthrough = document.createElement('section'); followthrough.className = 'session-followthrough'; followthrough.setAttribute('aria-labelledby', 'session-followthrough-title');
+        const appRoot = document.querySelector('#root > div'); followthrough.dataset.theme = appRoot?.className.includes('bg-white') ? 'light' : 'dark';
+        const inner = document.createElement('div'); inner.className = 'session-followthrough__inner';
+        const headingWrap = document.createElement('div'); headingWrap.className = 'session-followthrough__heading';
+        const eyebrow = document.createElement('p'); eyebrow.className = 'session-followthrough__eyebrow'; eyebrow.textContent = 'PERSONAL GUIDANCE / BUILT AROUND YOU';
+        const heading = document.createElement('h2'); heading.id = 'session-followthrough-title'; heading.textContent = 'One focused hour. A plan that keeps working.'; headingWrap.append(eyebrow, heading);
+        const grid = document.createElement('div'); grid.className = 'session-followthrough__grid';
+        const benefits = [
+          ['?', 'Not another YouTube session', 'Free YouTube sessions can explain general concepts. They cannot answer what is specific to your preparation; this hour is built around your questions.'],
+          ['1:1', 'One full hour, one ranker', 'Choose a topper from last year for direct 1:1 guidance and answers to the questions that matter to you.'],
+          ['✓', 'Support that stays after the call', 'Your session is recorded. Take the audio, a transcript, and a customized schedule and planner with you to guide your preparation.']
+        ];
+        benefits.forEach(([symbol, title, description]) => { const card = document.createElement('article'); card.className = 'session-benefit'; const icon = document.createElement('span'); icon.className = 'session-benefit__icon'; icon.setAttribute('aria-hidden', 'true'); icon.textContent = symbol; const cardTitle = document.createElement('h3'); cardTitle.textContent = title; const copy = document.createElement('p'); copy.textContent = description; card.append(icon, cardTitle, copy); grid.append(card); });
+        inner.append(headingWrap, grid); followthrough.append(inner); homeServicesForSession.insertAdjacentElement('afterend', followthrough);
+      }
+    }
+    const rateCard = document.querySelector('.home-rate-card');
+    if (rateCard && rateCard.dataset.previewPricing !== 'true') {
+      rateCard.replaceChildren();
+      let pricing = document.querySelector('.home-pricing');
+      if (!pricing) {
+        pricing = document.createElement('section'); pricing.className = 'home-pricing'; pricing.setAttribute('aria-labelledby','pricing-title');
+        const pricingHeading = document.createElement('div'); pricingHeading.className = 'home-pricing__heading';
+        const headingCopy = document.createElement('div');
+        const eyebrow = document.createElement('div'); eyebrow.className = 'home-eyebrow'; eyebrow.innerHTML = '<span class="home-eyebrow__mark"></span>MENTORSHIP / PRICING';
+        const pricingTitle = document.createElement('h2'); pricingTitle.className = 'home-pricing__title'; pricingTitle.id = 'pricing-title'; pricingTitle.textContent = 'Mentor tiers'; headingCopy.append(eyebrow, pricingTitle);
+        const planCount = document.createElement('span'); planCount.className = 'home-pricing__index'; planCount.textContent = '03 PLANS'; pricingHeading.append(headingCopy, planCount);
+        const pricingGrid = document.createElement('div'); pricingGrid.className = 'home-pricing__grid'; pricing.append(pricingHeading, pricingGrid);
+        const services = rateCard.closest('.home-services'); if (services) services.insertAdjacentElement('beforebegin', pricing);
+      }
+      const pricingGrid = pricing.querySelector('.home-pricing__grid'); pricingGrid.replaceChildren();
+      const plans = [
+        {name:'Diamond',description:'All India Rankers 1–100',note:'Avg marks',stat:'690–715',price:'3,000',discountPrice:'2,799',kind:'diamond',paths:'<path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20M12 21 8 9l4-6 4 6-4 12"/>'},
+        {name:'Elite',description:'All India Rankers 200–1000',note:'Avg marks',stat:'~658–681',price:'2,700',discountPrice:'2,499',kind:'elite',paths:'<path d="m2 8 5 4 5-7 5 7 5-4-2 12H4L2 8Z"/><path d="M4 16h16"/>'},
+        {name:'Prime',description:'All India Rankers 1000+',note:'Avg marks',stat:'650+',price:'2,000',discountPrice:'1,799',kind:'prime',paths:'<path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="m19 14 .9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z"/>'}
+      ];
+      plans.forEach((plan) => {
+        const {name, description, note, stat, price, discountPrice, kind, paths} = plan;
+        const card = document.createElement('article'); card.className = 'home-tier-card home-tier-card--' + kind;
+        const top = document.createElement('div'); top.className = 'home-tier-card__top';
+        const icon = document.createElement('span'); icon.className = 'home-tier-card__icon'; icon.setAttribute('aria-hidden','true'); icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+        const title = document.createElement('h3'); title.textContent = name; top.append(title, icon);
+        const details = document.createElement('div'); details.className = 'home-tier-card__details'; const desc = document.createElement('p'); desc.textContent = description; details.append(desc);
+        if (note) { const metric = document.createElement('div'); metric.className = 'home-tier-card__stat'; const label = document.createElement('span'); label.textContent = note; const value = document.createElement('strong'); value.textContent = stat; metric.append(label, value); details.append(metric); }
+        const priceBar = document.createElement('div'); priceBar.className = 'home-tier-card__price-bar'; priceBar.innerHTML = '<strong class="home-tier-card__current-price"><small>₹</small>' + price + '</strong>';
+        const actions = document.createElement('div'); actions.className = 'home-tier-card__actions'; const discount = document.createElement('button'); discount.type = 'button'; discount.className = 'home-tier-card__discount'; discount.setAttribute('aria-label','Want a discount? Solve a question and get it for ₹' + discountPrice); discount.innerHTML = 'Want a discount?<span>Solve a question and get it for ₹' + discountPrice + '</span>'; discount.addEventListener('click',() => showDiscountDialog(plan)); const divider = document.createElement('span'); divider.className = 'home-tier-card__action-divider'; divider.setAttribute('aria-hidden','true'); const more = document.createElement('button'); more.type = 'button'; more.innerHTML = 'Know more <span aria-hidden="true">↗</span>'; more.setAttribute('aria-label','Know more about ' + name); more.addEventListener('click', () => showTierDialog(plan)); actions.append(discount,divider,more);
+        card.append(top, details, priceBar, actions); pricingGrid.append(card);
+      });
+      rateCard.remove();
+    }
+    const servicesSection = document.querySelector('.home-services');
+    if (servicesSection && servicesSection.querySelector('.home-service-grid .home-service-card__label')?.textContent !== 'Personal one-time session') {
+      const serviceContent = [
+        ['Personal one-time session', 'Meet 1:1 with a ranker. Bring your own doubts and get personal answers, not generic advice.'],
+        ['MBBS abroad counselling', 'Get guidance, honest reviews from current students, and support with licensing exams such as USMLE.'],
+        ['Question a day & student resources', 'Daily NEET questions, the largest NEET-relevant question bank, peer performance tracking, blogs on branches and colleges, coaching and material reviews, plus a free time-management tool.'],
+        ['Full mentorship batches', 'Year-round guidance in focused groups of 25 students, starting at ₹12,000.']
+      ];
+      servicesSection.querySelector('.home-eyebrow').innerHTML = '<span class="home-eyebrow__mark"></span>MENTORSHIP / ACADEMIC SUPPORT';
+      const serviceIndex = servicesSection.querySelector('.home-services__index'); if (serviceIndex) serviceIndex.textContent = 'NEET SUPPORT';
+      let serviceGrid = servicesSection.querySelector('.home-service-grid');
+      if (!serviceGrid) { serviceGrid = document.createElement('div'); serviceGrid.className = 'home-service-grid'; servicesSection.querySelector('.home-services__left')?.append(serviceGrid); }
+      serviceGrid.replaceChildren();
+      serviceContent.forEach(([title, note]) => {
+        const card = document.createElement('article'); card.className = 'home-service-card';
+        const top = document.createElement('div'); top.className = 'home-service-card__top';
+        const arrow = document.createElement('span'); arrow.className = 'home-service-card__arrow'; arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true'); top.append(arrow);
+        const content = document.createElement('div'); content.className = 'home-service-card__content';
+        const heading = document.createElement('h3'); heading.className = 'home-service-card__label'; heading.textContent = title;
+        const description = document.createElement('p'); description.className = 'home-service-card__note'; description.textContent = note;
+        content.append(heading, description); card.append(top, content); serviceGrid.append(card);
+      });
+      servicesSection.dataset.previewServices = 'true';
+    }
+    const gallery = document.querySelector('.home-gallery');
+    const controls = gallery?.querySelector('.home-gallery__controls');
+    const stage = gallery?.querySelector('.home-gallery__stage');
+    const slide = stage?.querySelector('.home-gallery__slide');
+    if (gallery && controls && stage && slide) {
+      if (gallery.dataset.previewPaused === undefined) gallery.dataset.previewPaused = String(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      const sync = () => {
+        const paused = gallery.dataset.previewPaused === 'true';
+        gallery.dataset.slideshowPaused = String(paused);
+        const label = paused ? 'Play slideshow' : 'Pause slideshow';
+        const toggleButton = controls.querySelector('.home-gallery__toggle');
+        if (toggleButton) { const icon = paused ? '▶' : 'Ⅱ'; if (toggleButton.textContent !== icon) toggleButton.textContent = icon; toggleButton.setAttribute('aria-label', label); toggleButton.setAttribute('aria-pressed', String(paused)); toggleButton.title = label; }
+        const cardButton = stage.querySelector('.home-image-card');
+        if (cardButton) { cardButton.setAttribute('aria-label', paused ? 'Play slideshow' : 'Pause slideshow'); cardButton.title = paused ? 'Play slideshow' : 'Pause slideshow'; }
+      };
+      let toggleButton = controls.querySelector('.home-gallery__toggle');
+      if (!toggleButton) { toggleButton = document.createElement('button'); toggleButton.type = 'button'; toggleButton.className = 'home-gallery__nav home-gallery__toggle'; controls.append(toggleButton); }
+      toggleButton.style.display = 'none';
+      if (!toggleButton.dataset.bound) { toggleButton.dataset.bound = 'true'; toggleButton.addEventListener('click', () => { gallery.dataset.previewPaused = String(gallery.dataset.previewPaused !== 'true'); enhance(); }); }
+      if (gallery.dataset.previewSlideIndex === undefined) gallery.dataset.previewSlideIndex = '0';
+      const setPreviewSlide = (index) => {
+        const slideIndex = (index + 5) % 5; gallery.dataset.previewSlideIndex = String(slideIndex);
+        const currentSlide = stage.querySelector('.home-gallery__slide'); const card = currentSlide?.querySelector('.home-image-card');
+        if (currentSlide) currentSlide.setAttribute('aria-label','Card ' + (slideIndex + 1) + ' of 5');
+        if (card) { card.dataset.previewSlide = String(slideIndex + 1); card.setAttribute('aria-label',gallery.dataset.previewPaused === 'true' ? 'Play slideshow' : 'Pause slideshow'); }
+        controls.querySelectorAll('.home-gallery__dot').forEach((dot,dotIndex) => dot.setAttribute('aria-pressed',String(dotIndex === slideIndex)));
+      };
+      if (!gallery.dataset.previewFiveBound) {
+        gallery.dataset.previewFiveBound = 'true';
+        controls.addEventListener('click',(event) => { const button = event.target.closest('button'); if (!button) return; const current = Number(gallery.dataset.previewSlideIndex || 0); if (button.getAttribute('aria-label') === 'Show next image') setPreviewSlide(current + 1); if (button.getAttribute('aria-label') === 'Show previous image') setPreviewSlide(current - 1); });
+      }
+      const dots = controls.querySelector('.home-gallery__dots');
+      if (dots && (dots.children.length !== 5 || !dots.firstElementChild?.getAttribute('aria-label')?.startsWith('Show card'))) { dots.replaceChildren(); for (let index = 0; index < 5; index += 1) { const dot = document.createElement('button'); dot.type = 'button'; dot.className = 'home-gallery__dot'; dot.setAttribute('aria-label','Show card ' + (index + 1)); dot.setAttribute('aria-pressed','false'); dot.addEventListener('click',() => setPreviewSlide(index)); dots.append(dot); } }
+      setPreviewSlide(Number(gallery.dataset.previewSlideIndex || 0));
+      if (!gallery.dataset.autoplayBound) { gallery.dataset.autoplayBound = 'true'; window.setInterval(() => { const nextButton = gallery.querySelector('.home-gallery__slide-nav--next') || controls.querySelector('[aria-label="Show next image"]'); if (gallery.dataset.previewPaused !== 'true' && nextButton) nextButton.click(); }, 5000); }
+      if (!stage.dataset.pauseClickBound) {
+        stage.dataset.pauseClickBound = 'true';
+        stage.addEventListener('click', (event) => { const cardButton = event.target.closest('.home-image-card'); if (cardButton && !event.target.closest('button')) { gallery.dataset.previewPaused = String(gallery.dataset.previewPaused !== 'true'); enhance(); } });
+        stage.addEventListener('keydown', (event) => { const cardButton = event.target.closest('.home-image-card'); if (cardButton && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); gallery.dataset.previewPaused = String(gallery.dataset.previewPaused !== 'true'); enhance(); } });
+      }
+      const currentCard = slide.querySelector('.home-image-card');
+      if (currentCard && !currentCard.hasAttribute('role')) { currentCard.setAttribute('role','button'); currentCard.setAttribute('tabindex','0'); }
+      for (const direction of ['previous','next']) {
+        if (slide.querySelector('.home-gallery__slide-nav--' + direction)) continue;
+        const originalButton = controls.querySelector('[aria-label="Show ' + direction + ' image"]');
+        if (!originalButton) continue;
+        originalButton.style.display = 'none';
+        const overlayButton = document.createElement('button'); overlayButton.type = 'button'; overlayButton.className = 'home-gallery__slide-nav home-gallery__slide-nav--' + direction; overlayButton.setAttribute('aria-label','Show ' + direction + ' image'); overlayButton.innerHTML = originalButton.innerHTML; overlayButton.addEventListener('click', () => originalButton.click()); slide.append(overlayButton);
+      }
+      sync();
+    }
+    document.querySelectorAll('.aspect-video').forEach((visionCard) => { if (visionCard.textContent.includes('Vision video')) visionCard.classList.add('about-vision-card'); });
+  };
+  const observer = new MutationObserver(enhance);
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  enhance();
+})();
+</script>
+<script>
+(() => {
+  const ready = () => {
+    const desktopTimer = Array.from(document.querySelectorAll('[aria-label="NEET UG Countdown Urgency Timer"]')).find((node) => node.className.includes('hidden sm:inline-flex'));
+    if (desktopTimer && desktopTimer.dataset.compactCountdown !== 'true') {
+      desktopTimer.dataset.compactCountdown = 'true';
+      const title = desktopTimer.firstElementChild;
+      const countdown = desktopTimer.children[1]?.firstElementChild;
+      if (title && countdown) {
+        const year = title.textContent.match(/20\d{2}/)?.[0] || '2027';
+        title.style.gap = '4px';
+        const oldTitle = title.querySelector('span span');
+        if (oldTitle) oldTitle.style.display = 'none';
+        countdown.id = 'air-neet-countdown-values';
+        countdown.dataset.neetLabel = `NEET '${year.slice(-2)}`;
+        countdown.style.gap = '6px';
+        countdown.style.paddingLeft = '8px';
+        countdown.style.paddingRight = '8px';
+        Array.from(countdown.children).filter((item) => item.classList.contains('flex')).forEach((item, index) => {
+          if (item.lastElementChild) item.lastElementChild.textContent = ['d', 'h', 'm'][index] || '';
+        });
+        if (!document.getElementById('air-neet-countdown-compact-style')) {
+          const timerStyle = document.createElement('style'); timerStyle.id = 'air-neet-countdown-compact-style';
+          timerStyle.textContent = '#air-neet-countdown-values:before{content:attr(data-neet-label);color:#fecaca;font:700 10px ui-monospace,monospace;letter-spacing:.06em;white-space:nowrap;margin-right:3px}';
+          document.head.append(timerStyle);
+        }
+      }
+    }
+    if (!document.getElementById('air-neetwork-hero-link-size')) {
+      const linkStyle = document.createElement('style');
+      linkStyle.id = 'air-neetwork-hero-link-size';
+      linkStyle.textContent = '.home-intro__links{font-size:15px!important}@media(max-width:520px){.home-intro__links{font-size:14px!important}}';
+      document.head.append(linkStyle);
+    }
+    const mentor = document.querySelector('button[aria-label="Join us as mentor"]');
+    if (!mentor || document.getElementById('air-neetwork-actions')) return;
+    const responsive = document.createElement('style');
+    responsive.textContent = '';
+    document.head.append(responsive);
+    const group = document.createElement('div');
+    group.id = 'air-neetwork-actions';
+    group.style.cssText = 'display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto';
+    const base = 'display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 11px;border:1px solid;border-radius:12px;font:700 11px ui-monospace,SFMono-Regular,monospace;white-space:nowrap;cursor:pointer;transition:all .2s ease;background:#17180f;color:#e9f99b;border-color:#575e23';
+    const community = document.createElement('button');
+    community.type = 'button'; community.setAttribute('aria-label','Join the AIR NEETwork community');
+    community.title = 'Join the AIR NEETwork community'; community.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Join community</span>'; community.style.cssText = base;
+    community.addEventListener('click', () => document.querySelector('button[aria-label*="Open Instagram and YouTube channels"]')?.click());
+    const pledge = document.createElement('button');
+    pledge.type = 'button'; pledge.setAttribute('aria-label','Take the NEET pledge');
+    pledge.title = 'Take the NEET pledge'; pledge.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/><path d="m8 12 2 2 4-4"/></svg><span>Take NEET pledge</span>';
+    pledge.style.cssText = base + ';background:#ccff00;color:#111;border-color:#ccff00';
+    pledge.addEventListener('click', openPledge);
+    group.append(community, pledge);
+    mentor.parentElement?.before(group);
+  };
+  function openPledge() {
+    if (document.getElementById('neet-pledge-overlay')) return;
+    const overlay = document.createElement('div'); overlay.id = 'neet-pledge-overlay'; overlay.setAttribute('role','presentation');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.78);backdrop-filter:blur(8px)';
+    overlay.innerHTML = '<section role="dialog" aria-modal="true" aria-labelledby="neet-pledge-title" style="position:relative;box-sizing:border-box;width:min(100%,430px);padding:28px;border:1px solid #3e3e40;border-radius:20px;background:#111114;color:#f7f7f2;font-family:system-ui,sans-serif;box-shadow:0 25px 80px #0009"><button type="button" aria-label="Close pledge" style="position:absolute;top:14px;right:14px;border:0;background:transparent;color:#aaa;font-size:22px;cursor:pointer">×</button><p style="margin:0 0 8px;color:#ccff00;font:700 11px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase">AIR NEETwork</p><h2 id="neet-pledge-title" style="margin:0 0 12px;font-size:27px">My NEET pledge</h2><p style="margin:0 0 24px;color:#d0d0d3;font-size:14px;line-height:1.65">I pledge to show up consistently, learn from every mistake, and prepare with honesty and care for my wellbeing. My progress is built one focused day at a time.</p><button type="button" data-pledge-confirm style="width:100%;padding:13px;border:0;border-radius:12px;background:#ccff00;color:#101010;font:800 13px ui-monospace,monospace;cursor:pointer">I take the pledge</button></section>';
+    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (event) => { if (event.key === 'Escape') close(); };
+    overlay.addEventListener('click', event => { if (event.target === overlay || event.target.closest('[aria-label="Close pledge"],[data-pledge-confirm]')) close(); });
+    document.addEventListener('keydown', onKey); document.body.append(overlay);
+    overlay.querySelector('[aria-label="Close pledge"]')?.focus();
+  }
+  new MutationObserver(ready).observe(document.documentElement,{childList:true,subtree:true});
+  ready();
+})();
+</script></body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
